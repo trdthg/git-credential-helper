@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    branches: [ dev ]
+    tags:
+      - "v*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Run tests
+      run: cargo test --verbose
+
+    - name: Build
+      run: cargo build --verbose --release
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./target/debug/git-credential-trdthg
+
+    - name: Opening pull request
+      uses: tretuna/sync-branches@1.4.0
+      with:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        FROM_BRANCH: "dev"
+        TO_BRANCH: "master"
